@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{%block title%} Rate Us{%endblock%}
+{% block content %}
+<div class="max-w-7xl mx-auto mb-5 grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+  <!-- ⭐ Rating Form -->
+  <div class="bg-white border border-emerald-300 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-3xl font-bold mb-6 text-emerald-700 text-center">
+        ⭐ Share Your Feedback
+      </h2>
+
+      <form method="POST" class="space-y-4">
+        
+        <!-- Stars -->
+        <div class="flex justify-center space-x-2 text-4xl cursor-pointer" id="star-container">
+          {% for i in range(1, 5 + 1) %}
+            <span class="star text-gray-300 dark:text-gray-500 hover:text-amber-500 dark:hover:text-amber-400 transition"
+      data-value="{{ i }}">★</span>
+          {% endfor %}
+        </div>
+
+        <input type="hidden" name="rating" id="rating-value" required>
+
+        <!-- Comment -->
+        <textarea name="comment" id="comment" rows="3"
+          placeholder="Write your feedback here..."
+          class="w-full p-3 rounded-xl border border-emerald-300 focus:ring-2
+           focus:ring-emerald-500 focus:border-emerald-500"></textarea>
+
+        <!-- Submit -->
+        <div class="text-center">
+         {% if user_feedback %}
+<button class="btn btn-warning bg-emerald-600 text-white px-8 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition">Update</button>
+{% else %}
+<button class="btn btn-success  bg-emerald-600 text-white px-8 py-2 rounded-xl font-semibold hover:bg-emerald-700 transition">Submit</button>
+{% endif %}
+
+        </div>
+      </form>
+  </div>
+
+
+  <!-- 💬 Feedback List -->
+  <div class="bg-white border border-emerald-300 p-6 rounded-2xl shadow-lg">
+      <h3 class="text-2xl font-bold mb-4 text-emerald-700">💬 User Reviews</h3>
+
+      {% if feedbacks %}
+        <ul class="space-y-4">
+
+          {% for fb in feedbacks %}
+            <li class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+              <div class="flex justify-between items-center">
+                <strong class="text-emerald-800">
+                  {{ fb.username or 'Anonymous' }}
+                </strong>
+
+                <span class="text-amber-500 text-xl">
+                  {% for i in range(fb.rating) %} ★ {% endfor %}
+                </span>
+              </div>
+
+              {% if fb.comment %}
+                <p class="mt-2 text-gray-700 italic">
+                  "{{ fb.comment }}"
+                </p>
+              {% endif %}
+
+              <small class="text-gray-500">
+                {{ fb.created_at }}
+              </small>
+            </li>
+          {% endfor %}
+        </ul>
+
+      {% else %}
+        <p class="text-gray-600">No feedback yet. Be the first to rate 😊</p>
+      {% endif %}
+  </div>
+
+</div>
+
+<!-- ⭐ Star Script -->
+<script>
+const stars = document.querySelectorAll("#star-container .star");
+const ratingInput = document.getElementById("rating-value");
+
+stars.forEach(star => {
+  star.addEventListener("click", () => {
+    let value = star.getAttribute("data-value");
+    ratingInput.value = value;
+
+    stars.forEach(s => s.classList.remove("text-amber-500"));
+
+    for (let i = 0; i < value; i++) {
+      stars[i].classList.add("text-amber-500");
+    }
+  });
+});
+</script>
+{% endblock %}
+
+
+
+
+

@@ -1,0 +1,256 @@
+{% extends "base.html" %}
+{% block title %}Student Profile{% endblock %}
+{% block content %}
+
+<style>
+.profile-card{
+    max-width:1550px;      /* wider card */
+    margin:auto;
+    background:#e9f1ff;
+    border-radius:16px;
+    padding:24px 30px;     /* reduced vertical padding */
+    box-shadow:0 0 28px rgba(0,0,0,.25);
+}
+
+/* Profile Image */
+.profile-img{
+    width:190px;
+    height:190px;
+    border-radius:50%;
+    object-fit:cover;
+    border:4px solid #4f9cff;
+}
+
+/* Main Heading */
+.main-heading{
+    font-size:38px;
+    font-weight:800;
+    color:#0b1f3a;
+}
+
+/* Section title */
+.section-title{
+    color:#0b1f3a;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+/* Info Grid */
+.info-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 18px;      /* reduced gap */
+}
+
+.info-box{
+    background:white;
+    padding:8px 12px;   /* reduced height */
+    border-radius:10px;
+    border:1px solid #d9e4ff;
+}
+
+.info-label{
+    font-weight:700;
+    color:#2b4c7e;
+    font-size:14px;
+}
+
+.info-value{
+    color:#000;
+    font-weight:600;
+    font-size:14px;
+}
+
+/* Badge containers */
+.badge-box{
+    background:#e8f1ff;
+    padding:8px 12px;   /* reduced */
+    border-radius:10px;
+    color:#000;
+    font-size:14px;
+}
+
+/* Resume Button */
+.resume-btn{
+    background:#0066ff !important;
+    padding:10px 20px;
+    border-radius:10px;
+    font-size:15px;
+    font-weight:700;
+    border:none;
+    white-space:nowrap;
+}
+
+@media (max-width: 768px) {
+    .profile-card {
+        padding: 16px 12px;
+        width: 100%;
+    }
+    .profile-img {
+        width: 140px;
+        height: 140px;
+    }
+    .main-heading {
+        font-size: 26px;
+    }
+    .info-grid {
+        grid-template-columns: 1fr;  /* 1 column for mobile */
+        gap: 8px 10px;
+    }
+    .resume-btn {
+        padding: 8px 15px;
+        font-size: 14px;
+        width: 100%;  /* Full width on mobile */
+        text-align: center;
+    }
+    .badge-box {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+}
+</style>
+
+<div class="container mb-4">
+
+    <h2 class="text-center main-heading">
+        👤 Student Profile Details
+    </h2>
+
+    <hr class="text-light">
+
+    <div class="profile-card mt-3">
+
+        <div class="row align-items-start">
+
+            <!-- Profile Picture -->
+            <div class="col-md-4 text-center">
+
+                {% if student.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/profile_pics/' ~ student.profile_pic) }}"
+                         class="profile-img"
+                         onclick="openImageModal(this.src)"
+                         style="cursor:pointer;">
+                {% else %}
+                    <img src="{{ url_for('static', filename='default_profile.png') }}"
+                         class="profile-img">
+                {% endif %}
+
+                <p class="fw-bold mt-2 mb-1">
+                    {{ student.username }}
+                </p>
+
+                <p class="badge bg-info text-dark px-2 py-1">
+                    {{ student.email }}
+                </p>
+
+            </div>
+
+            <!-- Details -->
+            <div class="col-md-8">
+
+                <p class="section-title">📄 Profile Information</p>
+
+                <div class="info-grid">
+
+                    <div class="info-box">
+                        <span class="info-label">Phone</span><br>
+                        <span class="info-value">{{ student.phone or "Not Provided" }}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label">Gender</span><br>
+                        <span class="info-value">{{ student.gender or "Not Provided" }}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label">Course</span><br>
+                        <span class="info-value">{{ student.course or "Not Provided" }}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label">Branch</span><br>
+                        <span class="info-value">{{ student.branch or "Not Provided" }}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label">Passing Year</span><br>
+                        <span class="info-value">{{ student.passing_year or "Not Provided" }}</span>
+                    </div>
+
+                    <div class="info-box">
+                        <span class="info-label">CGPA</span><br>
+                        <span class="info-value">{{ student.cgpa or "Not Provided" }}</span>
+                    </div>
+                </div>
+
+                <div class="badge-box mt-2">
+                    <b>Skills:</b> {{ student.skills or "Not Provided" }}
+                </div>
+
+                <div class="badge-box mt-2">
+                    <b>Certifications:</b> {{ student.certifications or "Not Provided" }}
+                </div>
+
+                <div class="mt-2">
+                    <b>Bio:</b> {{ student.bio or "Not Provided" }}
+                </div>
+
+                <!-- Links (always visible) -->
+                <div class="mt-3 d-flex gap-2 flex-wrap align-items-center">
+
+                    {% if student.linkedin %}
+                        <a href="{{ student.linkedin }}" target="_blank"
+                           class="btn btn-sm btn-primary">
+                           🔗 LinkedIn
+                        </a>
+                    {% endif %}
+
+                    {% if student.github %}
+                        <a href="{{ student.github }}" target="_blank"
+                           class="btn btn-sm btn-dark">
+                           💻 GitHub
+                        </a>
+                    {% endif %}
+
+                   {% if student.resume %}
+                        <a class="resume-btn text-white"
+                           href="{{ url_for('static', filename='uploads/resumes/' ~ student.resume) }}"
+                           download>
+                           📥 Download Resume
+                        </a>
+                    {% else %}
+                        <span class="resume-missing">
+                            📄 Resume Not Uploaded
+                        </span>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Viewer -->
+<div id="imageModal"
+     style="display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,.9); justify-content:center;
+            align-items:center; z-index:9999">
+
+    <img id="modalImg"
+         style="max-width:75%; max-height:80%; border-radius:12px;">
+</div>
+
+<script>
+function openImageModal(src){
+    document.getElementById("modalImg").src = src;
+    document.getElementById("imageModal").style.display = "flex";
+}
+document.getElementById("imageModal").onclick = function(){
+    this.style.display = "none";
+};
+</script>
+
+{% endblock %}

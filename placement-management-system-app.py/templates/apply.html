@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Apply{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 pb-10">
+
+  <h2 class="text-3xl font-bold mb-8 text-center">
+    📝 Application Form – {{ placement.company }} ({{ placement.role }})
+  </h2>
+
+  <div class="bg-white rounded-xl shadow-lg p-8">
+
+    <form method="POST" enctype="multipart/form-data">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- Name -->
+        <div>
+          <label class="font-medium">👤 Full Name</label>
+          <input type="text" name="student_name" required
+            class="w-full mt-2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+        </div>
+
+       <!-- Phone -->
+        <div>
+          <label class="font-medium">📞 Phone Number</label>
+          <input type="text"
+                 name="phone"
+                 required
+                 pattern="[0-9]{10}"
+                 maxlength="10"
+                 placeholder="10-digit mobile number"
+                 class="w-full mt-2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+          <p class="text-sm text-gray-500 mt-1">
+            Enter exactly 10 digits (numbers only)
+          </p>
+        </div>
+        <!-- Course (Dropdown + Type) -->
+        <div>
+          <label class="font-medium">🎓 Course</label>
+          <input type="text" name="course" list="courseList" required
+            placeholder="Select or type your course"
+            class="w-full mt-2 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+
+          <datalist id="courseList">
+            <option value="B.Tech">
+            <option value="B.E">
+            <option value="B.Sc">
+            <option value="BCA">
+            <option value="MCA">
+            <option value="M.Tech">
+            <option value="MBA">
+            <option value="Diploma">
+            <option value="Other">
+          </datalist>
+        </div>
+
+      <div>
+          <label class="font-medium">🛠 Skills</label>
+          <input type="text"
+                 name="skills"
+                  id="skillsInput"
+                 list="skillsList"
+                 placeholder="Python, SQL, React"
+                 class="w-full mt-2 px-4 py-2 border rounded-lg">
+
+          <datalist id="skillsList">
+            <option value="Python">
+            <option value="Java">
+            <option value="C++">
+            <option value="SQL">
+            <option value="HTML">
+            <option value="CSS">
+            <option value="JavaScript">
+            <option value="React">
+            <option value="Node.js">
+            <option value="Flask">
+            <option value="Django">
+            <option value="Machine Learning">
+            <option value="Data Analysis">
+            <option value="AWS">
+            <option value="Docker">
+            <option value="Git">
+            <option value="Communication">
+            <option value="Leadership">
+            <option value="Problem-Solving">
+          </datalist>
+
+         <p class="text-sm text-gray-500 mt-1">
+            You can select or type multiple skills, separated by commas
+          </p>
+        </div>
+
+      </div>
+
+      <!-- Experience (Dropdown + Optional typing) -->
+      <div class="mt-6">
+        <label class="font-medium">💼 Experience</label>
+        <input type="text" name="experience" list="expList"
+          placeholder="Select or describe your experience"
+          class="w-full mt-2 px-4 py-2 border rounded-lg">
+
+        <datalist id="expList">
+          <option value="Fresher">
+          <option value="Internship experience">
+          <option value="0–1 years">
+          <option value="1–2 years">
+          <option value="2+ years">
+          <option value="Project-based experience">
+        </datalist>
+      </div>
+
+     <!-- Resume Upload -->
+      <div class="mt-6">
+        <label class="font-medium">📄 Upload Resume</label>
+        <input type="file"
+               id="resumeInput"
+               name="resume"
+               accept=".pdf,.doc,.docx"
+               required
+               class="w-full mt-2 px-4 py-2 border rounded-lg bg-white">
+
+        <p class="text-sm text-gray-500 mt-1">
+          Allowed formats: PDF / DOC / DOCX · Max size: 2 MB
+        </p>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit"
+        class="mt-8 w-full py-3 bg-indigo-600 text-white rounded-lg text-lg hover:bg-indigo-700 transition">
+        🚀 Submit Application
+      </button>
+
+    </form>
+  </div>
+
+</div>
+<script>
+function validateForm() {
+
+  // Phone validation
+  const phone = document.querySelector('input[name="phone"]').value;
+  if (!/^\d{10}$/.test(phone)) {
+    alert("Phone number must be exactly 10 digits.");
+    return false;
+  }
+
+  // Resume size validation (2 MB)
+  const resumeInput = document.getElementById("resumeInput");
+  const MAX_RESUME_SIZE = 2 * 1024 * 1024; // 2MB
+
+resumeInput.addEventListener("change", function () {
+  const file = this.files[0];
+  if (!file) return;
+
+  if (file.size > MAX_RESUME_SIZE) {
+    alert("❌ Resume size is too large. Maximum allowed size is 2 MB.");
+    this.value = ""; // clear file input
+  }
+});
+  const skillsInput = document.getElementById("skillsInput");
+const skillsList = document.getElementById("skillsList");
+
+skillsInput.addEventListener("input", () => {
+  const value = skillsInput.value;
+
+  // If user selected from dropdown (no comma yet)
+  if (skillsList.querySelector(`option[value="${value.trim()}"]`)) {
+    skillsInput.value = value + ", ";
+  }
+});
+
+// Keep dropdown usable after comma
+skillsInput.addEventListener("keydown", (e) => {
+  if (e.key === "," || e.key === " ") {
+    setTimeout(() => {
+      skillsInput.dispatchEvent(new Event("input"));
+    }, 0);
+  }
+});
+</script>
+
+{% endblock %}
+
+
+

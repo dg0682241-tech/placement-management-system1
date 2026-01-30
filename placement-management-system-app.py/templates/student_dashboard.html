@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<div class="flex justify-center pb-4 animate__animated animate__fadeInUp">
+  <h1 class="text-4xl font-bold text-gray-900 dark:text-gray-100 transition hover:underline hover:scale-[1.03]">
+    Welcome, {{ username }} 👋
+  </h1>
+</div>
+
+<!-- Motivation -->
+<p id="student-typing"
+   class="mt-1 text-xl font-medium text-gray-800 dark:text-gray-200 text-center"></p>
+
+<!-- MAIN GRID -->
+<div class="mt-10 grid md:grid-cols-2 gap-12 px-12 items-start">
+
+  <!-- LEFT -->
+  <div class="flex flex-col gap-8">
+
+    <!-- CARD -->
+    {% macro card(title, desc, link, btn) %}
+    <div
+      class="group relative backdrop-blur-xl bg-blue-600/90 p-6 rounded-2xl text-white
+             shadow-xl transition-all duration-300 ease-out
+             hover:-translate-y-2 hover:shadow-blue-400/40 hover:shadow-2xl
+             animate__animated animate__fadeInLeft">
+
+      <!-- extra glow -->
+      <div class="absolute inset-0 rounded-2xl opacity-0
+                  group-hover:opacity-100 transition
+                  bg-gradient-to-br from-blue-400/30 to-transparent pointer-events-none"></div>
+
+      <h2 class="text-2xl font-bold relative z-10">{{ title }}</h2>
+      <p class="text-sm text-white/90 relative z-10">{{ desc }}</p>
+
+      <a href="{{ link }}"
+         class="relative z-10 inline-block mt-4 px-4 py-2 bg-white text-blue-700 rounded-lg font-semibold
+                transition-all hover:bg-gray-100 hover:-translate-y-0.5 hover:shadow-md">
+        {{ btn }}
+      </a>
+    </div>
+    {% endmacro %}
+
+    {{ card("👤 Profile & Resume", "Update your profile and upload resumes.",
+      url_for('enhancements.profile'), "Edit") }}
+
+    {{ card("💼 Available Placements", "Explore the latest job postings.",
+      url_for('enhancements.placements'), "View") }}
+
+    <!-- SLIDESHOW 2 -->
+    <div class="slideshow-frame">
+      <img id="slideshow2" loading="lazy"
+           class="slideshow-img"
+           src="{{ url_for('static', filename='images/student_dashboard1.jpeg') }}">
+    </div>
+
+    {{ card("📄 Resume ATS Checker", "Analyze your resume with ATS.",
+      url_for('enhancements.check_resume'), "Check") }}
+
+    {{ card("📝 Practice", "Practice tests & quizzes.",
+      url_for('enhancements.practice'), "Quiz & Practice") }}
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="flex flex-col gap-10">
+
+    <!-- SLIDESHOW 1 -->
+    <div class="slideshow-frame">
+      <img id="slideshow1" loading="lazy"
+           class="slideshow-img"
+           src="{{ url_for('static', filename='images/student_dashboard.jpg') }}">
+    </div>
+
+    {{ card("📌 Application Status", "Track your applied opportunities.",
+      url_for('enhancements.status'), "Check") }}
+
+    {{ card("💬 Gain Knowledge", "Ask questions & clear doubts.",
+      url_for('enhancements.ask'), "Go to Chat") }}
+
+    <!-- SLIDESHOW 3 -->
+    <div class="slideshow-frame">
+      <img id="slideshow3" loading="lazy"
+           class="slideshow-img"
+           src="{{ url_for('static', filename='images/student_dashboard3.jpg') }}">
+    </div>
+
+  </div>
+</div>
+
+<!-- 🔒 FIXED SIZE — ZERO LAYOUT SHIFT -->
+<style>
+.slideshow-frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;       /* HARD LOCK */
+  overflow: hidden;
+  border-radius: 0.75rem;
+  box-shadow: 0 12px 28px rgba(0,0,0,.18);
+  background: #e5e7eb;        /* prevents white flash */
+}
+
+.slideshow-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  transition: opacity .45s ease, transform .6s ease;
+}
+
+/* subtle zoom on hover ONLY */
+.slideshow-frame:hover .slideshow-img {
+  transform: scale(1.05);
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* SLIDESHOW */
+  const slides = [
+    "{{ url_for('static', filename='images/student_dashboard.jpg') }}",
+    "{{ url_for('static', filename='images/student_dashboard1.jpeg') }}",
+    "{{ url_for('static', filename='images/student_dashboard2.webp') }}",
+    "{{ url_for('static', filename='images/student_dashboard3.jpg') }}",
+    "{{ url_for('static', filename='images/student_dashboard4.jpg') }}"
+  ];
+
+  const img1 = document.getElementById("slideshow1");
+  const img2 = document.getElementById("slideshow2");
+  const img3 = document.getElementById("slideshow3");
+
+  let i = 0, j = 2, k = 4;
+
+  const swap = (img, index) => {
+    img.style.opacity = "0";
+    setTimeout(() => {
+      img.src = slides[index % slides.length];
+      img.style.opacity = "1";
+    }, 400);
+  };
+
+  setInterval(() => swap(img1, ++i), 4000);
+  setInterval(() => swap(img2, ++j), 5500);
+  setInterval(() => swap(img3, ++k), 7000);
+
+  /* TYPING */
+  const text =
+    "Your journey towards success starts here — explore opportunities, prepare well, and achieve big!";
+  let idx = 0;
+  const target = document.getElementById("student-typing");
+
+  function type() {
+    if (idx < text.length) {
+      target.innerHTML =
+        text.substring(0, idx + 1) +
+        '<span class="border-r-2 border-blue-600 animate-pulse ml-1"></span>';
+      idx++;
+      setTimeout(type, 40);
+    } else {
+      target.innerHTML = text;
+    }
+  }
+
+  type();
+});
+</script>
+
+{% endblock %}

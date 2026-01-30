@@ -1,0 +1,335 @@
+{% extends "base.html" %}
+{% block title %}Profile & Resume{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mb-10 p-8 bg-white rounded-2xl shadow-lg animate__animated animate__fadeInUp relative">
+
+  <!-- Top Heading + Edit Button -->
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-3xl font-bold text-gray-900">👤 Profile & Resume</h2>
+
+    <button id="editBtn"
+            onclick="enableEdit()"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 hover:scale-105 transition">
+      ✏️ Edit Profile
+    </button>
+  </div>
+<div id="profileContent">
+  <form method="POST" enctype="multipart/form-data"
+        class="space-y-6 bg-white rounded-xl p-6 shadow-lg animate__animated animate__fadeIn">
+
+    <!-- Profile Picture -->
+    <div class="flex flex-col items-center">
+      <img src="{% if user.profile_pic %}{{ url_for('static', filename='uploads/profile_pics/'~ user.profile_pic) }}{% else %}  {{ url_for('static', filename='uploads/profile_pics/default-avatar.png') }}{% endif %}"
+           class="w-28 h-28 rounded-full border-4 border-blue-600 shadow-lg mb-2 cursor-pointer"
+           onclick="openImageModal(this.src)">
+
+      <p class="text-gray-900 font-semibold text-center">{{ user.username }}</p>
+
+      <!-- Editable input -->
+      <input type="file" name="profile_pic" class="text-sm mt-2 hidden editableField">
+    </div>
+
+    <!-- Username + Email -->
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="font-semibold text-gray-900">Username</label>
+        <input type="text" value="{{ user.username }}" disabled
+               class="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-900">
+      </div>
+
+      <div>
+        <label class="font-semibold text-gray-900">Email</label>
+        <input type="email" value="{{ user.email }}" disabled
+               class="w-full px-4 py-2 rounded-lg border border-gray-200 text-gray-900">
+      </div>
+    </div>
+
+    <!-- Phone + Gender -->
+    <div class="grid grid-cols-2 gap-6">
+      <div>
+        <label class="font-semibold text-gray-900">Phone</label>
+        <input type="text" name="phone" value="{{ user.phone or '' }}"
+               disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900"
+               pattern="[0-9]{10}" title="Enter 10 digit phone number">
+      </div>
+
+      <div>
+        <label class="font-semibold text-gray-900">Gender</label>
+        <select name="gender" disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+          <option value="">Select Gender</option>
+          <option value="Male" {% if user.gender == 'Male' %}selected{% endif %}>Male</option>
+          <option value="Female" {% if user.gender == 'Female' %}selected{% endif %}>Female</option>
+        </select>
+      </div>
+    </div>
+
+  <!-- Course + Branch -->
+<div class="grid grid-cols-2 gap-6">
+  <div>
+    <label class="font-semibold text-gray-900">Course</label>
+    <input list="courseOptions" name="course" value="{{ user.course or '' }}"
+           disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+    <datalist id="courseOptions">
+      <option value="B.Tech">
+      <option value="M.Tech">
+      <option value="B.Sc">
+      <option value="M.Sc">
+      <option value="BBA">
+      <option value="MBA">
+      <option value="Diploma">
+    </datalist>
+  </div>
+
+  <div>
+    <label class="font-semibold text-gray-900">Branch</label>
+    <input list="branchOptions" name="branch" value="{{ user.branch or '' }}"
+           disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+    <datalist id="branchOptions">
+      <option value="Computer Science">
+      <option value="Electrical">
+      <option value="Mechanical">
+      <option value="Civil">
+      <option value="Electronics">
+      <option value="Chemical">
+      <option value="Information Technology">
+      <option value="Biotechnology">
+    </datalist>
+  </div>
+</div>
+
+<!-- Passing Year + CGPA -->
+<div class="grid grid-cols-2 gap-6">
+  <div>
+    <label class="font-semibold text-gray-900">Passing Year</label>
+    <input type="date" name="passing_year" value="{{ user.passing_year or '' }}"
+           disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+  </div>
+
+  <div>
+    <label class="font-semibold text-gray-900">CGPA / %</label>
+    <input list="cgpaOptions" name="cgpa" value="{{ user.cgpa or '' }}"
+           disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+    <datalist id="cgpaOptions">
+      <option value="10.0">
+      <option value="9.0+">
+      <option value="8.0+">
+      <option value="7.0+">
+      <option value="6.0+">
+    </datalist>
+  </div>
+</div>
+
+    <!-- Bio -->
+    <div>
+      <label class="font-semibold text-gray-900">Short Bio</label>
+      <textarea name="bio" rows="2"
+                disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">{{ user.bio or '' }}</textarea>
+    </div>
+
+    <!-- Skills -->
+    <div>
+      <label class="font-semibold text-gray-900">Skills</label>
+      <textarea name="skills" rows="3"
+                disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">{{ user.skills or '' }}</textarea>
+    </div>
+
+    <!-- Certifications -->
+    <div>
+      <label class="font-semibold text-gray-900">Certifications</label>
+      <textarea name="certifications" rows="3"
+                disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">{{ user.certifications or '' }}</textarea>
+    </div>
+
+<!-- LinkedIn + GitHub -->
+    <div class="grid grid-cols-2 gap-6"> 
+      <div>
+        <label class="font-semibold text-gray-900">LinkedIn</label> 
+        <input type="text" name="linkedin" value="{{ user.linkedin or '' }}" disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+      </div> 
+      <div> 
+        <label class="font-semibold text-gray-900">GitHub</label> 
+        <input type="text" name="github" value="{{ user.github or '' }}" disabled class="w-full px-4 py-2 rounded-lg border border-gray-200 editableField text-gray-900">
+      </div> 
+    </div> 
+
+    <!-- Resume --> 
+    <div> 
+      <label class="font-semibold text-gray-900">Upload Resume</label>
+      <div class="border-2 border-dashed border-gray-200 rounded-lg p-6 text-center hidden editableField">
+        <input type="file" name="resume" class="mx-auto">
+        <p class="text-sm text-gray-600 mt-2">Upload your resume (PDF/DOC)</p>
+      </div> 
+      {% if user.resume %} 
+      <p class="mt-2 text-sm text-gray-900"> 📄 Current Resume: <a href="{{ url_for('static', filename='uploads/resumes/'+user.resume) }}" class="text-blue-600 underline" target="_blank"> {{ user.resume }} </a> </p>
+      {% endif %}
+    </div>
+
+    <!-- Save -->
+    <button id="saveBtn" type="submit"
+            class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold shadow hidden mt-4">
+      💾 Save Changes
+    </button>
+
+  </form>
+</div>
+</div>
+<!-- FULL PAGE SAVE PROGRESS -->
+<div id="saveOverlay"
+     class="hidden fixed inset-0 bg-slate-50 z-50 flex flex-col items-center justify-center">
+
+  <div class="w-72 bg-gray-200 rounded-full h-2 overflow-hidden">
+    <div id="saveProgressBar"
+         class="h-full bg-blue-600 transition-all duration-300"
+         style="width:0%">
+    </div>
+  </div>
+
+  <p class="mt-3 text-gray-600 font-medium">
+    Updating your profile…
+  </p>
+</div>
+
+<!-- IMAGE MODAL -->
+<div id="imageModal"
+     style="display:none; position:fixed; top:0; left:0;
+            width:100%; height:100%; background:rgba(0,0,0,.8);
+            justify-content:center; align-items:center; z-index:9999;">
+    <img id="modalImg" style="max-width:70%; max-height:80%; border-radius:12px;">
+</div>
+
+<style>
+/* Profile pic smaller on tiny phones */
+@media (max-width: 360px) {
+  .profile-pic {
+    width: 5rem;
+    height: 5rem;
+  }
+}
+
+/* Modal width */
+@media (max-width: 480px) {
+  #modalImg {
+    max-width: 90%;
+    max-height: 80%;
+  }
+}
+
+/* Reduce form padding on mobile */
+@media (max-width: 480px) {
+  form {
+    padding: 1rem;
+  }
+}
+
+/* Font size for inputs + textareas */
+@media (max-width: 480px) {
+  input, textarea {
+    font-size: 0.875rem;
+  }
+}
+</style>
+
+<script>
+function enableEdit() {
+  document.querySelectorAll(".editableField").forEach(el => {
+    el.disabled = false;
+    el.classList.remove("hidden");
+  });
+  document.getElementById("saveBtn").classList.remove("hidden");
+  document.getElementById("editBtn").classList.add("hidden");
+}
+
+function openImageModal(src) {
+    document.getElementById("modalImg").src = src;
+    document.getElementById("imageModal").style.display = "flex";
+}
+document.getElementById("imageModal").onclick = function () {
+    this.style.display = "none";
+};
+  document.addEventListener("DOMContentLoaded", () => {
+
+  const form = document.querySelector("form");
+
+  form.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter") return;
+
+    const editableFields = Array.from(
+      form.querySelectorAll(
+        "input.editableField:not([type='file']), textarea.editableField, select.editableField"
+      )
+    ).filter(el => !el.disabled && el.offsetParent !== null);
+
+    if (editableFields.length === 0) return;
+
+    const currentIndex = editableFields.indexOf(document.activeElement);
+
+    // If focus is inside editable fields
+    if (currentIndex !== -1) {
+      e.preventDefault(); // stop form submit
+
+      // Move to next field
+      if (currentIndex < editableFields.length - 1) {
+        editableFields[currentIndex + 1].focus();
+      } 
+      // Last field → allow Save button to submit
+      else {
+        document.getElementById("saveBtn")?.click();
+      }
+    }
+  });
+
+});
+
+  document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  const progressWrapper = document.getElementById("saveProgressWrapper");
+  const progressBar = document.getElementById("saveProgressBar");
+
+  if (!form || !progressWrapper || !progressBar) return;
+
+  form.addEventListener("submit", () => {
+    progressWrapper.classList.remove("hidden");
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      if (progress < 90) {
+        progress += 10;
+        progressBar.style.width = progress + "%";
+      } else {
+        clearInterval(interval);
+      }
+    }, 200);
+  });
+});
+
+  document.addEventListener("DOMContentLoaded", () => {
+  const form = document.querySelector("form");
+  const overlay = document.getElementById("saveOverlay");
+  const content = document.getElementById("profileContent");
+  const bar = document.getElementById("saveProgressBar");
+
+  if (!form || !overlay || !content || !bar) return;
+
+  form.addEventListener("submit", () => {
+    content.classList.add("hidden");
+    overlay.classList.remove("hidden");
+
+    let progress = 0;
+    const interval = setInterval(() => {
+      if (progress < 90) {
+        progress += 8;
+        bar.style.width = progress + "%";
+      } else {
+        clearInterval(interval);
+      }
+    }, 180);
+  });
+});
+</script>
+
+{% endblock %}
+
+
+
+

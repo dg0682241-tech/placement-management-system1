@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="overflow-x-hidden mb-8">
+
+  <!-- Top Header Row -->
+  <div class="max-w-6xl mx-auto flex justify-between items-center mb-6 px-5">
+    <h2 class="text-3xl font-extrabold text-black">
+      📌 Manage Placements
+    </h2>
+
+    <!-- Add New Company Button -->
+    <a href="{{ url_for('enhancements.add_placement') }}"
+       class="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
+      <span class="text-lg">➕</span>
+      <span class="hidden sm:inline font-semibold">Add New Company</span>
+    </a>
+  </div>
+  <!-- 🔍 Search Filters -->
+<div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 mb-10 px-2">
+
+  <!-- Company (input + datalist) -->
+  <input list="companyOptions" id="searchCompany" placeholder="Company" class="p-3 border rounded-lg">
+  <datalist id="companyOptions">
+    <option value="Google">
+    <option value="Microsoft">
+    <option value="Amazon">
+    <option value="Facebook">
+    <option value="Apple">
+    <option value="Infosys">
+    <option value="TCS">
+    <option value="Wipro">
+  </datalist>
+
+  <!-- Role / Job Type (input + datalist) -->
+  <input list="roleOptions" id="searchRole" placeholder="Role / Job Type" class="p-3 border rounded-lg">
+  <datalist id="roleOptions">
+    <option value="Internship">
+    <option value="Full-time">
+    <option value="Part-time">
+    <option value="Contract">
+  </datalist>
+
+  <!-- Location (input + datalist) -->
+  <input list="locationOptions" id="searchLocation" placeholder="Location" class="p-3 border rounded-lg">
+  <datalist id="locationOptions">
+    <option value="Pune">
+    <option value="Kolkata">
+    <option value="Noida">
+    <option value="Bangalore">
+    <option value="Hyderabad">
+    <option value="Delhi">
+    <option value="Mumbai">
+    <option value="Chennai">
+  </datalist>
+
+  <!-- Eligibility (input + datalist) -->
+  <input list="eligibilityOptions" id="searchEligibility" placeholder="Eligibility" class="p-3 border rounded-lg">
+  <datalist id="eligibilityOptions">
+    <option value="BCA">
+    <option value="MCA">
+    <option value="B.Tech">
+    <option value="MBA">
+    <option value="Any">
+  </datalist>
+
+  <!-- Salary / Stipend (free text) -->
+  <input id="searchSalary" placeholder="Salary / Stipend" class="p-3 border rounded-lg">
+
+  <!-- Deadline (date picker) -->
+  <input id="searchDeadline" type="date" class="p-3 border rounded-lg">
+
+</div>
+
+
+  <!-- 📦 Placement Cards -->
+  <div class="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto px-2" id="placementsContainer">
+
+    {% for p in placements %}
+    {% set logo_file = p.company|lower|replace(' ', '') ~ '.png' %}
+
+    <div class="placement-card bg-white p-6 rounded-2xl shadow-lg transition"
+         data-company="{{ p.company|lower }}"
+         data-role="{{ p.role|lower }}"
+         data-location="{{ p.location|lower }}"
+         data-eligibility="{{ (p.eligibility or '')|lower }}"
+         data-salary="{{ (p.salary or '')|lower }}"
+         data-deadline="{{ (p.deadline or '') }}">
+
+      <div class="flex items-center gap-4 mb-3">
+        <img src="{{ url_for('static', filename='uploads/logos/' ~ logo_file) }}"
+             onerror="this.style.display='none'"
+             class="w-14 h-14 object-contain rounded-md border bg-white">
+
+        <div>
+          <h3 class="font-bold text-lg text-indigo-700">{{ p.company }}</h3>
+          <p class="text-sm text-gray-600">{{ p.role }}</p>
+        </div>
+      </div>
+
+      <p class="text-sm text-gray-500">📍 {{ p.location }}</p>
+      <p class="text-sm text-gray-500">💰 {{ p.salary or "Not disclosed" }}</p>
+      <p class="text-sm text-gray-500">📅 {{ p.deadline or "N/A" }}</p>
+
+      <p class="text-gray-600 mt-2">
+        {{ p.description[:120] }}{% if p.description and p.description|length > 120 %}...{% endif %}
+      </p>
+
+      <p class="mt-2 text-sm">
+        <span class="font-semibold">Eligibility:</span>
+        {{ p.eligibility or "Not specified" }}
+      </p>
+
+      <!-- Actions -->
+      <form method="POST"
+            action="{{ url_for('enhancements.delete_placement', pid=p.id) }}"
+            onsubmit="return confirm('Delete this placement?')"
+            class="mt-4">
+        <button type="submit"
+                class="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 transition">
+          🗑 Delete
+        </button>
+      </form>
+
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+function filterPlacements(){
+  const inputs = document.querySelectorAll("input");
+  document.querySelectorAll(".placement-card").forEach(card=>{
+    let visible = true;
+    inputs.forEach(input=>{
+      if (input.value && !card.dataset[input.id.replace("search","").toLowerCase()].includes(input.value.toLowerCase())){
+        visible = false;
+      }
+    });
+    card.style.display = visible ? "block" : "none";
+  });
+}
+document.querySelectorAll("input").forEach(i=>i.addEventListener("input", filterPlacements));
+</script>
+{% endblock %}
+
+
+

@@ -1,0 +1,217 @@
+
+{% extends "base.html" %}
+
+{% block title %}Placements{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl px-6 pb-10">
+
+  <!-- Heading -->
+  <h1
+    class="text-center text-4xl md:text-5xl font-extrabold tracking-wide mb-12
+           transition transform hover:scale-105 hover:underline underline-offset-8">
+    💼 Available Placements
+  </h1>
+
+  <!-- Search Section -->
+  <form method="GET" id="searchForm" class="flex flex-col md:flex-row gap-4 justify-center mb-12">
+
+    <input type="text" name="q"
+      value="{{ request.args.get('q','') }}"
+      placeholder="🔍 Company, role or skill"
+      class="w-full md:w-72 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+
+      <!-- Location Dropdown + Typing -->
+    <input type="text"
+           name="location"
+           list="locations"
+           value="{{ request.args.get('location','') }}"
+           placeholder="📍 Location (select or type)"
+           class="w-full md:w-64 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+
+    <!-- Location Options -->
+    <datalist id="locations">
+      <option value="Bangalore">
+      <option value="Hyderabad">
+      <option value="Chennai">
+      <option value="Pune">
+      <option value="Mumbai">
+      <option value="Delhi">
+      <option value="Noida">
+      <option value="Gurgaon">
+      <option value="Kolkata">
+      <option value="Ahmedabad">
+      <option value="Remote">
+    </datalist>
+
+
+    <select name="job_type"
+      class="w-full md:w-64 px-4 py-3 border rounded-lg focus:ring-2 focus:ring-indigo-600">
+      <option value="">🧩 Job Type</option>
+      <option value="Full-time">💼 Full-time</option>
+      <option value="Internship">🎓 Internship</option>
+      <option value="Hybrid">🔄 Hybrid</option>
+      <option value="Remote">🏠 Remote</option>
+    </select>
+
+    <button
+      class="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition">
+      🔎 Search
+    </button>
+  </form>
+
+  <!-- Cards -->
+  {% if jobs %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    {% for j in jobs %}
+    <div class="bg-white rounded-2xl shadow-lg p-6 relative">
+
+      <!-- Card Info -->
+      <div class="flex items-center gap-4 mb-4">
+        <img
+          src="{{ url_for('static', filename='uploads/logos/' ~ (j.logo or 'default.png')) }}"
+          class="w-16 h-16 object-contain rounded">
+
+        <div>
+          <h3 class="text-xl font-bold">🏢 {{ j.company }}</h3>
+          <p class="text-gray-600">👨‍💻 {{ j.role }}</p>
+        </div>
+      </div>
+
+      <p class="text-gray-700">📍 <strong>Location:</strong> {{ j.location }}</p>
+      <p class="text-gray-700">💰 <strong>Salary:</strong> {{ j.salary }}</p>
+
+      {% if j.applied %}
+  <!-- Already Applied (NON-clickable) -->
+  <div
+    class="mt-6 w-full py-2 text-center
+           bg-green-100 text-green-700
+           border border-green-400
+           rounded-lg font-semibold cursor-not-allowed">
+    ✅ Already Applied
+  </div>
+{% else %}
+  <!-- Not Applied -->
+  <button
+    onclick="document.getElementById('panel-{{ j.id }}').classList.remove('hidden')"
+    class="mt-6 w-full py-2 bg-blue-800 text-white rounded-lg
+           hover:bg-slate-800 transition">
+    📄 Show Details
+  </button>
+{% endif %}
+
+    </div>
+
+    <!-- Slide Panel -->
+    <div id="panel-{{ j.id }}"
+      class="fixed inset-0 bg-black/40 hidden flex items-end justify-center z-50">
+
+      <div
+        class="bg-white w-full max-w-3xl rounded-t-2xl p-8 animate-slideUp relative">
+
+        <button
+          onclick="this.closest('.fixed').classList.add('hidden')"
+          class="absolute right-6 top-4 text-2xl">
+          ❌
+        </button>
+
+        <div class="flex items-center gap-4 mb-6">
+          <img
+            src="{{ url_for('static', filename='uploads/logos/' ~ (j.logo or 'default.png')) }}"
+            class="w-20 h-20 object-contain">
+          <h2 class="text-2xl font-bold">🏢 {{ j.company }}</h2>
+        </div>
+
+        <p>👨‍💻 <strong>Role:</strong> {{ j.role }}</p>
+        <p>📍 <strong>Location:</strong> {{ j.location }}</p>
+        <p>🧩 <strong>Job Type:</strong> {{ j.job_type }}</p>
+        <p>⏳ <strong>Duration:</strong> {{ j.duration }}</p>
+        <p>💰 <strong>Salary:</strong> {{ j.salary }}</p>
+
+        <p class="mt-4">
+          📝 <strong>Description:</strong><br>
+          {{ j.description }}
+        </p>
+
+        <p class="mt-2">✅ <strong>Eligibility:</strong> {{ j.eligibility }}</p>
+        <p class="mt-2">📅 <strong>Deadline:</strong> {{ j.deadline }}</p>
+
+        <div class="flex gap-4 mt-8">
+          {% if j.link %}
+          <a href="{{ j.link }}" target="_blank"
+             class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+            🌐 External Link
+          </a>
+          {% endif %}
+{% if request.args.get('status') == 'success' %}
+<div class="bg-green-100 text-green-800 px-4 py-3 rounded-lg mb-4">
+  ✔ Application submitted successfully!
+</div>
+{% endif %}
+<a href="{{ url_for('enhancements.apply', placement_id=j.id) }}"
+   class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded">
+  Apply Now 🚀
+</a>
+
+        </div>
+      </div>
+    </div>
+
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <p class="text-center text-gray-500 text-lg mt-20">
+    🚫 No placements available for your search.
+  </p>
+  {% endif %}
+
+</div>
+<!-- Loader Overlay -->
+<div id="searchLoader"
+     class="fixed inset-0 bg-white/80 backdrop-blur-sm z-50 hidden
+            flex flex-col items-center justify-center">
+
+  <div class="animate-spin rounded-full h-14 w-14 border-4
+              border-indigo-600 border-t-transparent"></div>
+
+  <p class="mt-4 text-lg font-semibold text-indigo-700">
+    Searching placements...
+  </p>
+</div>
+
+<!-- Slide animation -->
+<style>
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.animate-slideUp {
+  animation: slideUp 0.4s ease-out;
+}
+</style>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("searchForm");
+  const loader = document.getElementById("searchLoader");
+
+  if (!form || !loader) return;
+
+  form.addEventListener("submit", () => {
+    loader.classList.remove("hidden");
+
+    // Optional: disable button to prevent double submit
+    const btn = form.querySelector("button[type='submit']");
+    if (btn) {
+      btn.disabled = true;
+      btn.classList.add("opacity-70", "cursor-not-allowed");
+    }
+  });
+});
+</script>
+
+{% endblock %}         
+
+
+
